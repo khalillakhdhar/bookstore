@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// model user
+model User{
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+  profile Profile? // user can have one profile (one to one) obligatory
+  borrowed Book[] @relation("UserBooks") // user can borrow many books
+}
+
+model Profile{
+  id Int @id @default(autoincrement())
+  adress String
+  
+  user User @relation(fields: [userId],references: [id])
+  userId Int @unique
+}
+model Author{
+  id Int @id @default(autoincrement())
+  name String
+  books Book[] // author can have many books (one to many)
+}
+model Book{
+  id Int @id @default(autoincrement())
+  title String
+  author Author @relation(fields: [authorId],references: [id])
+  authorId Int @unique
+  borrowers User[] @relation("UserBooks") // book can be borrowed by many users (many to many)
+  publisher publisher @relation(fields: [publisherId],references: [id])
+  publisherId Int @unique
+}
+model publisher{
+  id Int @id @default(autoincrement())
+  name String
+  books Book[] // publisher can have many books (one to many)
+}
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
